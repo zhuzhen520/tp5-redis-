@@ -1,0 +1,159 @@
+{include file="public/header" /}
+<body>
+    <div class="pd-20">
+      <form action="" method="post" class="form form-horizontal" id="form-member-add">
+        <div class="row cl">
+          <label class="form-label col-3">订单编号：</label>
+          [{$row.order_id}] {$row.order_sn}
+      </div>
+      <div class="row cl">
+          <label class="form-label col-3">下单时间：</label>
+          {$row.add_time|date='Y-m-d H:i:s',###}
+      </div>
+      <div class="row cl">
+          <label class="form-label col-3">收货地址：</label>
+          {$row.province|get_region_name}省
+          {$row.city|get_region_name}市
+          {$row.area|get_region_name}
+          {$row.address}（{$row.name}收）
+          {$row.mobile}
+      </div>
+      <div class="row cl">
+          <label class="form-label col-3">状态：</label>
+          {switch name="row.state"}
+          {case value="0"}已提交{/case}
+          {case value="1"}已确认{/case}
+          {case value="2"}已取消{/case}
+          {/switch}
+
+          {if condition="$row.state != 2"}
+          {switch name="row.pay_state"}
+          {case value="0"}未付款{/case}
+          {case value="1"}已付款{/case}
+          {/switch}
+          {switch name="row.shipping_state"}
+          {case value="0"}未发货{/case}
+          {case value="1"}已发货{/case}
+          {case value="2"}已收货{/case}
+          {case value="3"}已退货{/case}
+          {/switch}
+          {if condition="$row.shipping_state eq 2"}
+          {switch name="row.comment_state"}
+          {case value="0"}未评论{/case}
+          {case value="1"}已评论{/case}
+          {/switch}
+          {/if}
+          {/if}
+      </div>
+      <div class="row cl">
+          <label class="form-label col-3">支付方式：</label>
+          {if condition="$row.pay eq 1"}
+          支付宝
+          {else/}
+          微信
+          {/if}
+          当时的金币：{$row.gold_price}
+      </div>
+      <div class="row cl">
+          <label class="form-label col-3">金额：</label>
+          {$row.total}(含运费{$row.shipping_fee})
+      </div>
+
+      <if condition="$row.cancel_time gt 0">
+          <div class="row cl">
+            <label class="form-label col-3">取消时间：</label>
+            {$row.cancel_time|date='Y-m-d H:i:s',###}
+        </div>
+    </if>
+
+    <if condition="$row.pay_time gt 0">
+      <div class="row cl">
+        <label class="form-label col-3">付款时间：</label>
+        {$row.pay_time|date='Y-m-d H:i:s',###}
+    </div>
+</if>
+
+<if condition="$row.send_time gt 0">
+  <div class="row cl">
+    <label class="form-label col-3">发货时间：</label>
+    {$row.send_time|date='Y-m-d H:i:s',###}
+</div>
+</if>
+
+<if condition="$row.get_time gt 0">
+  <div class="row cl">
+    <label class="form-label col-3">收货时间：</label>
+    {$row.get_time|date='Y-m-d H:i:s',###}
+</div>
+</if>
+
+<if condition="$row.enfunds_time gt 0">
+  <div class="row cl">
+    <label class="form-label col-3">退货时间：</label>
+    {$row.enfunds_time|date='Y-m-d H:i:s',###}
+</div>
+</if>
+<div class="row cl">
+    <label class="form-label col-3">商品：</label>
+    {volist name="row.order_goods" id="v"}
+    <table class="table table-border table-bordered table-hover table-bg table-sort">
+      <thead>
+          <tr class="text-c">
+              <td width="50"><img height="80" src="{$v.pro_thumb}"></td>
+              <td width="80"><label>{$v.pro_name}</label></td>
+              <td width="80">{$v.pro_attr}</td>
+              <td width="80">￥{$v.price}+￥{$v.attr_price}</td>
+              <td width="80"><label>{$v.buy_number}件</label></td>
+          </tr>
+      </thead>
+  </table>
+  {/volist}
+</div>
+
+<div class="row cl">
+  <div class="col-9 col-offset-3">
+    <!-- 确认 取消 发货 退货 -->
+    {if condition="$row.state eq 0"}
+        <button onClick="order_oper({$row.order_id},'confirm')" class="btn btn-primary radius" type="button"><i class="Hui-iconfont">&#xe632;</i> 确认</button>
+    {/if}
+    {if condition="$row.state neq 2 && $row['shipping_state'] eq 0"}
+        <button onClick="order_oper({$row.order_id},'cancel')" class="btn btn-danger radius" type="button"><i class="Hui-iconfont">&#xe66c;</i> 取消</button>
+    {/if}
+    {if condition="$row.state neq 2 && $row['pay_state'] eq 1 && $row['shipping_state'] eq 0"}
+        <button onClick="order_oper({$row.order_id},'send')" class="btn btn-success radius" type="button"><i class="Hui-iconfont">&#xe603;</i> 发货</button>
+    {/if}
+    {if condition="$row.shipping_state neq 3 && $row['shipping_state'] neq 0"}
+        <button onClick="order_oper({$row.order_id},'refunds')" class="btn btn-warning radius" type="button"><i class="Hui-iconfont">&#xe644;</i> 退货</button>
+    {/if}
+</div>
+</div>
+</form>
+</div>
+</div>
+
+<script type="text/javascript">
+  function order_oper(order_id,oper){
+    var str = '';
+    switch(oper){
+      case 'confirm':str = '确认订单';break;
+      case 'cancel':str = '取消';break;
+      case 'send':str = '确认发货';break;
+      case 'refunds':str = '确认退货';break;
+  }
+  layer.confirm('确认要'+str+'吗？',function(index){
+      $.post("{:url('order_oper')}",{order_id:order_id,oper:oper},function(data){
+        if(data.status == 'y'){
+          layer.msg(data.info,{icon: 1,time: 1000});
+          setTimeout(function(){
+            location.reload();
+        },800);
+      }else{
+          layer.msg(data.info,{icon: 2,time: 1000});
+      }
+  });
+      
+  });
+}
+</script>
+</body>
+</html>

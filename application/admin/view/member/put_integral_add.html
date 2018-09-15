@@ -1,0 +1,54 @@
+{include file="public/header" /}
+<body>
+<div class="pd-20">
+  <form action="" method="post" class="form form-horizontal" id="form-member-add">
+
+    <span class="label label-default radius">银行卡/其它 支付订单</span>
+    <div class="row cl">
+        <div class="formControls col-10">
+            <input type="text" class="input-text" name="order_sn" placeholder="{:input('status') == 5 ? '回执订单...' : '驳回理由...'}" datatype="*" nullmsg="请填写">
+        </div>
+        <div class="col-4" id="error"> </div>
+    </div>
+
+    <div class="row cl">
+      <div class="col-5 col-offset-0">
+        <input type="hidden" value="{:input('id')}" name="id">
+        <input type="hidden" value="{:input('status')}" name="status">
+        <input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+      </div>
+    </div>
+  </form>
+</div>
+</div>
+
+<script type="text/javascript">
+$(function(){
+    //选择框
+    $('.skin-minimal input').iCheck({
+        checkboxClass: 'icheckbox-blue',
+        radioClass: 'iradio-blue',
+        increaseArea: '20%'
+    });
+//内容框name设置
+var ue = UE.getEditor('editor',{'textarea':'content'});
+
+$("#form-member-add").Validform({
+    tiptype:2,
+    ajaxPost:true,
+    callback:function(data){
+        setTimeout(function(){
+            $.Hidemsg();
+            if(data.status == 'y'){
+                var index = parent.layer.getFrameIndex(window.name);
+                parent.location.reload();
+                parent.layer.close(index);
+            }
+        },1000);
+    }
+});
+});
+</script>
+
+</body>
+</html>

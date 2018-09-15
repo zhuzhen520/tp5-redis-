@@ -1,0 +1,119 @@
+{include file="public/header" /}
+    <style type="text/css">
+        .tree {
+              min-height:400px;
+             
+            }
+            .tree li {
+              list-style-type:none;
+              margin:0;
+              padding:10px 5px 0 20px;
+              position:relative
+            }
+            .tree li::before, .tree li::after {
+              content:'';
+              left:-20px;
+              position:absolute;
+              right:auto
+            }
+            .tree li::before {
+              border-left:1px solid #999;
+              bottom:50px;
+              height:100%;
+              top:0;
+              width:1px
+            }
+            .tree li::after {
+              border-top:1px solid #999;
+              height:20px;
+              top:25px;
+              width:25px
+            }
+            .tree li span {
+              -moz-border-radius:5px;
+              -webkit-border-radius:5px;
+              border:1px solid #999;
+              border-radius:5px;
+              display:inline-block;
+              padding:3px 8px;
+              text-decoration:none
+            }
+            .tree li.parent_li>span {
+              cursor:pointer
+            }
+            .tree>ul>li::before, .tree>ul>li::after {
+              border:0
+            }
+            .tree li:last-child::before {
+              height:30px
+            }
+            .tree li.parent_li>span:hover, .tree li.parent_li>span:hover+ul li span {
+              background:#eee;
+              border:1px solid #94a0b4;
+              color:#000
+            }
+            .tree > ul> li{
+              display: block !important;
+            }
+            .blue{
+                color: #3fa9f5;
+                font-weight: 900;
+            }
+            .panel{border: none;}
+    </style>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 会员中心 <span class="c-gray en">&gt;</span> 推荐结构 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+    <form action="" method="get">
+        <div class="text-c"> 
+            <input type="text" class="input-text" style="width:250px" placeholder="输入id查询该用户下团队"
+            value="{$_GET['word']}" name="word">
+            <button type="submit" class="btn btn-success radius"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+        </div>
+    </form>
+<!-- 
+    <div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l">
+        <a href="javascript:;" onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 
+        批量删除</a> 
+    </span> 
+    <span class="r">共有数据：<strong id="count">{$count}</strong> 条</span> </div> -->
+                        <div class="builder-container">
+                            <div class="row">
+                                    <div class="builder-table">
+                                        <div class="panel panel-default table-responsive">
+                                        <!-- 树 -->
+                                          <div class="tree">
+                                            {$tree}
+                                          </div>
+                                          <!-- 树 -->
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+</div>
+
+<script type="text/javascript">
+
+function show_address(info){
+    layer.msg(info,{icon:2,time:1000});
+}
+
+</script> 
+    <script type="text/javascript">
+        $(function () {
+          $('.tree li:has(ul)').addClass('parent_li').find(' > span').attr('title', '折叠');
+          $('.tree li.parent_li > span').on('click', function (e) {
+            var children = $(this).parent('li.parent_li').find(' > ul > li');
+            if (children.is(":visible")) {
+              children.hide('fast');
+              $(this).attr('title', '展开').find(' > i').addClass('icon-plus-sign').removeClass('icon-minus-sign');
+            } else {
+              children.show('fast');
+              $(this).attr('title', '折叠').find(' > i').addClass('icon-minus-sign').removeClass('icon-plus-sign');
+            }
+            e.stopPropagation();
+          });
+        });
+    </script>
+</body>
+</html>

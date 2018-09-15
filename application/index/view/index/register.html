@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>注册——TIC</title>
+  <link rel="stylesheet" href="/static/static/muse-ui.css">
+  <link rel="stylesheet" href="/static/static/theme-carbon.css">
+  <script src="https://cdn.bootcss.com/vue/2.5.2/vue.min.js"></script>
+  <script src="/static/static/muse-ui.js"></script>
+  <script src="/static/static/smsCode.js"></script>
+  <script src="/static/static/jquery.min.js"></script>
+</head>
+
+<body>
+  <div class="regist" id="app">
+    <mu-appbar title="注册">
+    </mu-appbar>
+    <section class="logo">
+      <img src="/static/static/logo.png" alt="">
+   </section>
+    <section class="form">
+      <div>
+        <mu-text-field v-model="username" label="输入手机号"  type="number" :errorText="usernameError" fullWidth />
+      </div>
+      <div>
+        <sms-code v-model="sms_code" :phone="username" :errorText="codeError" @getCode="getCode"></sms-code>
+       </div>
+      <div>
+        <mu-text-field v-model="password" label="登录密码" :errorText="passwordError" type="password" fullWidth />
+      </div>
+      <div>
+        <mu-text-field v-model="code"  label="邀请码"  :error-text="inviteError" full-width /><!--disabled-->
+      </div>
+      <div class="regist-btn">
+        <mu-raised-button label="注册" :disabled="canRegist" @click="regist" class="demo-raised-button" fullWidth primary/>
+       </div>
+    </section>
+  </div>
+  <script>
+    Vue.use(MuseUI)
+    var regist = new Vue({
+      el: '#app',
+      methods: {
+        getCode: function () {
+          let app = this;
+          jQuery.ajax({
+            url:'http://{$_SERVER['HTTP_HOST']}/index.php/api/index/sendSms',
+            dataType: 'json',
+            type: 'POST',
+            data: {
+              phone: app.username,
+            },
+            success: function(r) {
+               if (r.status == "y") {
+                 app.serverCode = r.data;
+                 localStorage.serverCode = r.data;
+               }else{
+                alert(r.info)
+               }
+            }
+          })
+        },
+        regist: function () {
+          let app = this;
+          jQuery.ajax({
+            url:'http://{$_SERVER['HTTP_HOST']}/index.php/api/index/register',
+            dataType: 'json',
+            type: 'POST',
+            data: {
+              code: app.code,
+              username: app.username,
+              password: app.password,
+              sms_code: app.sms_code,
+            },
+            success: function (r) {
+              if (r.status == "y") {
+                alert(r.info);
+                var isAndroid = window.navigator.userAgent.indexOf('Android') > -1
+                window.location.href = isAndroid ? 'https://fir.im/jl68' : 'https://fir.im/jl68';
+              } else {
+                alert(r.info)
+              }
+            }
+          })
+        }
+      },
+      data: function () {
+        return {
+         // code: "{:input('code')}",
+          code:'',
+          username: "",
+          password: "",
+          sms_code: "",
+        }
+      },
+      created() {
+        //this.code = "{:input('code')}";
+        let search = window.location.search
+        search = search.substr(1, search.length - 1);
+        let id = search.split('=')[1];
+        if (id) {
+          this.invitation_tel = id;
+        }
+        this.serverCode = localStorage.serverCode || '';
+      },
+      computed: {
+        //用户名
+        usernamePass() {
+          let app = this;
+          return Lib.phoneRex.test(app.username);
+        },
+        usernameError() {
+        return this.usernamePass || this.username == "" 
+          ? ""
+          : "请输入正确的手机号";
+        },
+
+        //验证码
+        codePass() {
+          let app = this;
+          return Lib.smsCodeRex.test(app.sms_code);
+        },
+        codeError() {
+          return this.codePass || this.sms_code == "" ? "" : "验证码位6位数字";
+        },
+        
+        //密码
+        passwordPass() {
+          let app = this;
+          return Lib.passWordRex.test(app.password);
+        },
+        passwordError() {
+          return this.passwordPass || this.password == ""
+          ? ""
+          : "密码必须为大小写字母或数字，且长度在6-20位之间";
+        },
+
+        //邀请码
+        invitePass() {
+          let app = this;
+          return Lib.phoneRex.test(app.code);
+        },
+        inviteError() {
+          return this.invitePass || this.code == "" 
+          ? "" 
+          : "请输入正确的邀请码";
+        },
+
+        //可注册的条件
+        canRegist() {
+         return !(
+           this.usernamePass &&
+           this.codePass &&
+           this.passwordPass &&
+           this.invitePass
+        );
+       }
+
+      }
+    })
+
+  </script>
+  
+</body>
+
+<style>
+  .regist{
+    position: absolute;
+    width: 100%;
+    min-height: 100%;
+    background-image: url(/static/static/zuce.png);
+    background-repeat: no-repeat;
+    background-size:100%;
+    z-index: -11;
+   }
+   .regist .form{
+    background-color: rgba(0,0,0,0);
+    padding-left: 10px;
+    padding-right: 10px;
+   }
+   .regist .mu-appbar{
+    background-color: rgba(0,0,0,0);
+   }
+   .regist .mu-text-field {
+    color: #ffffff;
+   }
+   .regist .mu-text-field.has-label {
+    min-height: 72px;
+    width: 100%;
+   }
+   .regist .mu-text-field-input{
+    color: #ffffff;
+   }
+   .regist .mu-dropDown-menu-text{
+    color: #ffffff;
+   }
+   .regist .links {
+    color: #ffffff;
+   }
+   .regist .mu-raised-button.disabled{
+    color: #333333;
+    background-color: #ffffff;
+    width: 100%;
+    height: 100%;
+   }
+   .regist .mu-raised-button-primary{
+    background-color: #ffffff;
+    color: #333333;
+    width: 100%;
+    height: 100%;
+   }
+   /*邀请码*/
+   .mu-text-field-label{
+    color: #FFF;
+   }
+   /*验证码*/
+   .mu-flat-button-label{
+    color: #FFF;
+   }
+
+  .regist .forms{
+   background-color: rgba(0,0,0,0);
+ }
+ .regist .mu-raised-button.disabled{
+   color: #fff;
+   background-color: #f6ba04;
+ }
+ 
+ .regist .mu-raised-button-primary{
+   background-color: #f6ba04;
+   color: #fff;
+ }
+ .regist .mu-appbar{
+   background-color: rgba(0,0,0,0);
+  
+ }
+ .regist .rightlinks{
+    color: #f6ba04;
+ }
+.regist .yzcdl{
+    padding-top: 15px;
+    text-align: center;
+ }
+.regist .yzc{
+    color: #fff;
+ }
+.regist .mu-flat-button-primary{
+    color: #fff;
+    color: #fff;
+    position: relative;
+    float: right;
+    margin-top: -77px;
+}
+.regist .logo {
+  padding: 40px 0 20px 0;
+  text-align: center;
+  color: #ffffff;
+}
+.regist img {
+  width: 128px;
+  height: 68px;
+}
+.regist .mu-flat-button-wrapper{
+  border-radius: 5px;
+  background: #f6ba04;
+}
+ .regist .regist-btn{
+     padding-top: 30px
+ }
+  </style>
+</html>

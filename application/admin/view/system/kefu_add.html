@@ -1,0 +1,94 @@
+{include file="public/header" /}
+<body>
+<div class="pd-20">
+  <form action="{:url('kefu_add')}" method="post" class="form form-horizontal" id="form-member-add">
+    <div class="row cl">
+      <label class="form-label col-3"><span class="c-red">*</span>客服名称：</label>
+      <div class="formControls col-5">
+        <input type="text" class="input-text" value="{$title}" name="title" datatype="*" nullmsg="请输入客服名称">
+      </div>
+      <div class="col-4"> </div>
+    </div>
+    <div class="row cl">
+        <label class="form-label col-3"><span class="c-red">*</span>客服图片：</label>
+        <div class="formControls col-5">
+        <img id="thumb_url" src="{if condition="$thumb"}{$thumb}{else/}/static/Admin/nopic.jpg{/if}" style="height:100px;">
+        <input type="hidden"  id="picurl" name="thumb" value="{$thumb}" /> 
+        <button class="btn btn-success" id="image"  type="button" >上传二维码</button>
+        </div>
+    </div>
+    <div class="row cl">
+        <label class="form-label col-3"><span class="c-red">*</span>客服类型：</label>
+        <div class="formControls col-5">
+            <select name="type">
+                <option value="1">微信客服</option>
+                <option value="2">qq客服</option>
+                <option value="3">微信群客服</option>
+                <option value="4">qq群客服</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row cl">
+      <div class="col-9 col-offset-3">
+        <input type="hidden" value="{$id}" name="id">
+        <input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+      </div>
+    </div>
+  </form>
+</div>
+</div>
+
+<link rel="stylesheet" href="/static/Admin/kindeditor-4.1.10/themes/default/default.css" />
+<script charset="utf-8" src="/static/Admin/kindeditor-4.1.10/kindeditor-min.js"></script>
+<script charset="utf-8" src="/static/Admin/kindeditor-4.1.10/lang/zh_CN.js"></script>
+<script type="text/javascript">
+//选择框
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	$("#form-member-add").Validform({
+		tiptype:2,
+    ajaxPost:true,
+		callback:function(data){
+      setTimeout(function(){
+        $.Hidemsg();
+        if(data.status == 'y'){
+          var index = parent.layer.getFrameIndex(window.name);
+          parent.location.reload();
+          parent.layer.close(index);
+        }
+      },1000);
+		}
+	});
+});
+KindEditor.ready(function(K) {
+    var editor = K.editor({
+        allowFileManager : false,       
+        uploadJson : "{:url('Base/uploadImg',array('path'=>'system','thumb'=>0))}", //上传功能
+        fileManagerJson : '/static/Admin/kindeditor-4.1.10/php/file_manager_json.php?dirpath=system', //网络空间
+      });  
+    //上传背景图片
+    K('#image').click(function() {
+      editor.loadPlugin('image', function() {
+        editor.plugin.imageDialog({
+            showRemote : false, //网络图片不开启
+            //showLocal : false, //不开启本地图片上传
+            imageUrl : K('#picurl').val(),
+            clickFn : function(url, title, width, height, border, align) {
+            K('#picurl').val('/uploads/'+title);
+            $('#thumb_url').attr("src",'/uploads/'+title);
+            editor.hideDialog();
+          }
+        });
+      });
+    }); 
+
+});
+</script>
+</body>
+</html>

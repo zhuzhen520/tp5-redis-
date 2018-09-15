@@ -1,0 +1,186 @@
+{include file="public/header" /}
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 交易中心 <span class="c-gray en">&gt;</span> 交易列表 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+    <form action="" method="get">
+        <div class="text-c">
+            <span class="select-box inline">
+            <select name="type" class="select">
+                <option value="0">=类型=</option>
+                    <option value="0" {$_GET['type'] == 0 ? 'selected':''} >待交易</option>
+                    <option value="1" {$_GET['type'] == 1 ? 'selected':''} >通过</option>
+                    <option value="2" {$_GET['type'] == 2 ? 'selected':''} >拒绝</option>
+            </select>
+            </span>
+            &nbsp;日期范围：
+            <input type="text" onfocus="WdatePicker()" readonly name="time_min" value="{$_GET['time_min']}" class="input-text Wdate" style="width:120px;">
+            -
+            <input type="text" onfocus="WdatePicker()" readonly name="time_max" value="{$_GET['time_max']}" class="input-text Wdate" style="width:120px;">
+            <input type="text" class="input-text" style="width:250px" placeholder="卖家ID"
+            value="{$_GET['word']}" name="word">
+            <button type="submit" class="btn btn-success radius"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+        </div>
+    </form>
+
+    <div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l">
+        <a href="javascript:;" onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 
+        批量删除</a> 
+    </span> 
+    <span class="r">共有数据：<strong id="count">{$count}</strong> 条</span> </div>
+    <div class="mt-20">
+
+    <table class="table table-border table-bordered table-hover table-bg table-sort">
+        <thead>
+            <tr class="text-c">
+                <th width="25"><input type="checkbox" name="" value=""></th>
+                <th width="100">ID/类型</th>
+                <th width="150">卖家</th>
+                <th width="100">买方钱包地址
+                    <br>
+                    买家ID
+                </th>
+                <th width="100">总数量(TIC)</th>
+                <th width="100">卖方拨币(TIC)</th>
+                <th width="100">平台拨币(TIC)</th>
+                <th width="100">时间</th>
+                <th width="100">状态</th>
+                <th width="100">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {volist name="list" id="v"}
+                <tr class="text-c" id="tr{$v.id}">
+                    <td><input type="checkbox" value="{$v.id}" name="del[]"></td>
+                    <td>{$v.id}
+                        {switch name="$v.trade_type"}
+                            {case value="3"} <span class="label label-default radius">专员</span> {/case}
+                            {case value="2"} <span class="label label-default radius">对点</span> {/case}
+                            {case value="1"} <span class="label label-primary radius">大厅</span> {/case}
+                        {/switch}
+                    </td>
+                    <!-- 买 -->
+                    <td>
+                        {$v.uid} <br>
+                        {$v.username_buy}
+                    </td>
+                    <!-- 卖 -->
+                    <td>
+                        {$v.wallet_address}
+                        <br>
+                        {$v.getid}
+                    </td>
+                    <td>{$v.totaltic}</td>
+                    <td>{$v.persontic}</td>
+                    <td>{$v.pttic}</td>
+                    <td>{$v.add_time|date='Y-m-d H:i',###}</td>
+                    <td>
+                        {switch name="$v.type"}
+                            {case value="0"} <span class="label label-default radius">待交易</span> {/case}
+                            {case value="1"} <span class="label label-primary radius">通过</span> {/case}
+                            {case value="2"} <span class="label label-default radius">拒绝</span> {/case}
+                           }
+                        {/switch}
+                    </td>
+                    <td class="td-manage">
+                        {switch name="$v.type"}
+                        {case value="0"}
+                        <a title="拒绝" href="javascript:;"
+                                            onclick="member_no(this,{$v['id']})" class="ml-5" style="text-decoration:none">
+                        <i class="Hui-iconfont">&#xe706;</i>
+                        </a>
+                        {/case}
+                        }
+                        {/switch}
+                        {switch name="$v.type"}
+                        {case value="0"}
+                        <a title="拨币" href="javascript:;"
+                           onclick="member_add('查看订单','{:url('duichong_pass',array('id'=>$v['id']))}')" class="ml-5" style="text-decoration:none">
+                            <i class="Hui-iconfont">&#xe6df;</i>
+                        </a>
+                        {/case}
+                        }
+                        {/switch}
+
+                        <!--<a title="删除" href="javascript:;" onclick="member_del(this,{$v['id']})" class="ml-5" style="text-decoration:none">-->
+                            <!--<i class="Hui-iconfont">&#xe6e2;</i>-->
+                        <!--</a>-->
+                    </td>
+                </tr>
+            {/volist}
+        </tbody>
+    </table>
+        <div class="page text-r mt-10">
+            {$page}
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+/*产品-添加*/
+
+function member_add(title,url,w,h){
+    layer_show(title,url,w,h);
+}
+/*产品-删除*/
+function member_del(obj,id){
+    layer.confirm('确认要删除吗？',function(index){
+        $.post("{:url('product_trash')}",{id:id},function(data){
+            if(data.status == 'y'){
+                layer.msg(data.info,{icon:1,time:1000});
+                $(obj).parents("tr").remove();
+                $("#count").text(data.count);
+            }else{
+                layer.msg(data.info,{icon:2,time:1000});
+            }
+        },'json');
+    });
+}
+/*产品-拒绝*/
+function member_no(obj,id){
+    layer.confirm('确认要拒绝吗？',function(index){
+        $.post("{:url('duichong_no')}",{id:id},function(data){
+            if(data.status == 'y'){
+                layer.msg(data.info,{icon:1,time:1000});
+                window.location.reload();
+            }else{
+                layer.msg(data.info,{icon:2,time:1000});
+            }
+        },'json');
+    });
+}
+//批量删除
+function datadel(){
+ var id=''; 
+ $("input[name='del[]']:checked").each(function(){
+    id += $(this).val()+',';
+ });
+
+ if(id == ''){
+    layer.msg('还没选择!',{icon:2,time:1000});
+    return false;
+ }
+ layer.confirm('确认要删除吗？',function(index){
+    $.post("{:url('product_trash')}",{id:id},function(data){
+        if(data.status == 'y'){
+            //循环当前选择的框
+            $("input[name='del[]']:checked").each(function(){
+                //删除当前选择的框
+                $(this).parents('tr').remove();
+            });
+            layer.msg(data.info,{icon:1,time:1000});
+            $("#count").text(data.count);
+        }else{
+            layer.msg(data.info,{icon:2,time:1000});
+        }
+    });
+ });
+}
+
+function show_address(info){
+    layer.msg(info,{icon:2,time:1000});
+}
+
+</script> 
+</body>
+</html>

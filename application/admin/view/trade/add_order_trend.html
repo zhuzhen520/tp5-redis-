@@ -1,0 +1,77 @@
+{include file="public/header" /}
+
+<body>
+<div class="pd-20">
+    <form action="" method="post" class="form form-horizontal" id="form-msg">
+
+        
+
+        <div class="row cl">
+            <label class="form-label col-3"><i class="Hui-iconfont">&#xe6d6;</i>最高：</label>
+            <div class="formControls col-3">
+                <input type="text" placeholder="" class="input-text" value="{$row.highs}" datatype="*" nullmsg="最高不能为空" name="highs">
+            </div>
+            <div class="col-4"> </div>
+        </div>
+
+        <div class="row cl">
+            <label class="form-label col-3">价格：</label>
+            <div class="formControls col-3">
+                <input type="text" placeholder="0.68" class="input-text" value="{$row.price}" datatype="*" nullmsg="价格不能为空" name="price">
+            </div>
+            <div class="col-4"> </div>
+        </div>
+
+        <div class="row cl">
+            <label class="form-label col-3"><i class="Hui-iconfont">&#xe6d5;</i>最低：</label>
+            <div class="formControls col-3">
+                <input type="text" placeholder="" class="input-text" value="{$row.lows}" datatype="*" nullmsg="最低不能为空" name="lows">
+            </div>
+            <div class="col-4"> </div>
+        </div>
+
+
+        <div class="row cl">
+            <label class="form-label col-3">日期：</label>
+            <div class="formControls col-3">
+                <input type="text" onfocus="WdatePicker({lang:'zh-tw'})" readonly name="dates" datatype="*" nullmsg="日期不能为空" value="{$row.dates}" class="input-text Wdate">
+            </div>
+            <div class="col-4"> </div>
+        </div>
+
+        <div class="row cl">
+            <div class="col-9 col-offset-3">
+                <input type="hidden" name="id" value="{$row.id}">
+                <input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script type="text/javascript">
+$(function(){
+    $('.skin-minimal input').iCheck({
+        checkboxClass: 'icheckbox-blue',
+        radioClass: 'iradio-blue',
+        increaseArea: '20%'
+    });
+        
+    $("#form-msg").Validform({
+        tiptype:2,
+        ajaxPost:true,
+        callback:function(data){
+            setTimeout(function(){
+                $.Hidemsg();
+                if(data.status == 'y'){
+                    var index = parent.layer.getFrameIndex(window.name);
+                    parent.location.reload();
+                    parent.layer.close(index);
+                }
+            },1000);
+        }
+    });
+});
+</script>
+</body>
+</html>

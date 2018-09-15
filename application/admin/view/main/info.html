@@ -1,0 +1,82 @@
+{include file="public/header" /}
+<style type="text/css">
+</style>
+<body>
+<div class="pd-20">
+  <form action="" method="post" class="form form-horizontal" id="form-member-add">
+    <div class="row cl">
+      <label class="form-label col-3"><span class="c-red">*</span>账号：</label>
+      <div class="formControls col-5">
+        <input type="text" class="input-text" value="{$username}" name="username" disabled >
+      </div>
+      <div class="col-4" id="error"> </div>
+    </div>
+
+    <div class="row cl">
+      <label class="form-label col-3"><span class="c-red"></span>密码：</label>
+      <div class="formControls col-5">
+        <input type="password" class="input-text" value="" name="password" placeholder="填写为修改">
+      </div>
+      <div class="col-4"> </div>
+    </div>
+
+    <div class="row cl pwd">
+      <label class="form-label col-3"><span class="c-red">*</span>再次输入密码：</label>
+      <div class="formControls col-5">
+        <input type="password" class="input-text" value="" name="pwd2">
+      </div>
+      <div class="col-4"> </div>
+    </div>
+
+    <div class="row cl">
+      <label class="form-label col-3"><span class="c-red">*</span>昵称：</label>
+      <div class="formControls col-5">
+        <input type="text" class="input-text" value="{$nickname}" name="nickname" datatype="*" nullmsg="请输入昵称">
+      </div>
+      <div class="col-4"> </div>
+    </div>
+
+    <div class="row cl">
+      <div class="col-9 col-offset-3">
+        <input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+      </div>
+    </div>
+  </form>
+</div>
+</div>
+
+<script type="text/javascript">
+//选择框
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	$("#form-member-add").Validform({
+		tiptype:2,
+    ajaxPost:true,
+		callback:function(data){
+      setTimeout(function(){
+        $.Hidemsg();
+        if(data.status == 'y'){
+          var index = parent.layer.getFrameIndex(window.name);
+          parent.location.reload();
+          parent.layer.close(index);
+            
+        }
+      },1000);
+		}
+	});
+
+   $(".pwd").hide();
+   $("input[name='password']").blur(function(){
+      if($(this).val()){
+        $(".pwd").show();
+      }
+   });
+});
+</script>
+</body>
+</html>

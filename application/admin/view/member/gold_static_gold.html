@@ -1,0 +1,128 @@
+{include file="public/header" /}
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 会员管理 <span class="c-gray en">&gt;</span> 复投订单 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+
+
+<div class="pd-20"> 
+    <form action="" method="get">
+    <div class="text-c">        
+        日期：
+        <input type="text" onfocus="WdatePicker({lang:'zh-tw'})" value="{:input('get.start')}" name="start" id="datemin" class="input-text Wdate" style="width:120px;"> -
+        <input type="text" onfocus="WdatePicker({lang:'zh-tw'})" value="{:input('get.end')}" name="end" id="datemin" class="input-text Wdate" style="width:120px;">
+        <input type="text" class="input-text" style="width:250px" placeholder="会员ID/账号/手机号" name="word" value="{:input('word')}">
+        <span class="select-box inline">
+            <select name="status" class="select">
+                <option value="">全部</option>
+            </select>
+        </span>
+        <button type="submit" class="btn btn-success" id="" name=""><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+    </div>
+    </form>
+
+
+
+    <div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a></span> 
+    <span class="r">共有数据：<strong id="count">{$count}</strong> 条</span>  
+ </div>
+    <div class="mt-20">
+        <div class="page mb-10">
+            {$page}
+        </div>
+        <form action="{:url('attribute')}" method="post" id='sort-form'>
+            <table class="table table-border table-bordered table-bg table-hover table-sort">
+                <thead>
+                    <tr class="text-c">
+                        <th width="25"><input type="checkbox" name="" value=""></th>
+                        <th width="50">ID</th>
+                        <th width="100">会员</th>
+                        <th width="200">复投数量/余额</th>
+                        <th width="200">备注/订单</th>
+                        <th width="150">复投时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach name="list" item="v"}
+                        <tr class="text-c" id="tr{$v.attr_id}">
+                            <td><input type="checkbox" value="{$v.attr_id}" name="del[]"></td>
+                            <td>{$v.id}</td>
+                            <td>{$v.uid} <br> {$v.username}</td>
+                            <td>
+                                <span class="c-green">{$v.action}</span> 
+                                &nbsp;{$v.money_end} 
+                            </td>
+                            <td>
+                                复投资产{$v.total},当时价{$v.gold_price}
+                            </td>
+                            <td>
+                                {$v.add_time|date='Y-m-d H:i',###}
+                            </td>
+                        </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+
+/*属性-添加*/
+function article_add(title,url,w,h){
+    layer_show(title,url,w,h);
+}
+
+/*-删除*/
+function member_del(obj,id){
+    layer.confirm('确认要删除吗？',function(index){
+        $.post("{:url('attribute_del')}",{id:id},function(data){
+            if(data.status == 'y'){
+                //删除自己
+                $(obj).parents("tr").remove();
+                //数量赋值
+                $("#count").text(data.count);
+                layer.msg(data.info,{icon:1,time:1000});
+                //children的长度
+                for(var i=0;i<data.children.length;i++){
+                    $("#tr"+data.children[i]).remove();
+                }
+            }else{
+                layer.msg(data.info,{icon:2,time:1000});
+            }
+        },'json');
+
+    });
+}
+//批量删除
+function datadel(){
+ var id=''; 
+ $("input[name='del[]']:checked").each(function(){
+    id += $(this).val()+',';
+ });
+
+ if(id == ''){
+    layer.msg('必须选择一个!',{icon:2,time:1000});
+    return false;
+ }
+ layer.confirm('确认要删除吗？',function(index){
+    $.post("{:url('attribute_del')}",{id:id},function(data){
+            if(data.status == 'y'){
+                $("input[name='del[]']:checked").each(function(){
+                    $(this).parents('tr').remove();
+                    //children的长度
+                    for(var i=0;i<data.children.length;i++){
+                        $("#tr"+data.children[i]).remove();
+                    }
+                });
+                //数量赋值
+                $("#count").text(data.count);
+                layer.msg(data.info,{icon:1,time:1000});
+            }else{
+                layer.msg(data.info,{icon:2,time:1000});
+            }
+    });
+ });
+}
+</script> 
+</body>
+</html>

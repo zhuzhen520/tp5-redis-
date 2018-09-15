@@ -1,0 +1,157 @@
+{include file="public/header" /}
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 产品管理 <span class="c-gray en">&gt;</span> 产品列表 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+	<form action="" method="get">
+		<div class="text-c">
+			日期范围：
+			<input type="text" onfocus="WdatePicker()" readonly name="time_min" value="{$_GET['time_min']}" class="input-text Wdate" style="width:120px;">
+			-
+			<input type="text" onfocus="WdatePicker()" readonly name="time_max" value="{$_GET['time_max']}" class="input-text Wdate" style="width:120px;">
+			<input type="text" class="input-text" style="width:250px" placeholder="来源名"
+			value="{$_GET['word']}" name="word">
+			<button type="submit" class="btn btn-success radius"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+		</div>
+	</form>
+
+	<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> <a href="javascript:;" onclick="product_add('添加产品','{:url('product_add')}')" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe600;</i> 添加产品</a></span> 
+	<span class="r">共有数据：<strong id="count">{$count}</strong> 条</span> </div>
+	<div class="mt-20">
+	<table class="table table-border table-bordered table-hover table-bg table-sort">
+		<thead>
+			<tr class="text-c">
+				<th width="25"><input type="checkbox" name="" value=""></th>
+				<!--<th width="80">ID</th>-->
+				<th width="100">标的来源</th>
+				<th width="100">标的面积/合计(平米)</th>
+				<th width="60">
+					收购价格<br>
+					预计收益<br>
+					银行贷款<br>
+					起投价格(TIC)<br>
+				</th>
+				<th width="50">处置时间</th>
+				<th width="50">封闭期(天)</th>
+				<th width="50">是否已完成<br>
+				红色未完成/绿色计入分红收益
+				</th>
+				<th width="50">添加时间</th>
+				<!--<th width="50">首页推荐</th>-->
+				<th width="100">操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="list" id="v"}
+				<tr class="text-c" id="tr{$v.id}">
+					<td><input type="checkbox" value="{$v.id}" name="del[]"></td>
+					<!--<td>{$v.id}</td>-->
+					<td>{$v.name}
+					</td>
+					<td>{$v.mianji}/{$v.totalmianji}</td>
+					<td>{$v.buy_price}<br>
+						{$v.dream_money}<br>
+						{$v.get_money}<br>
+						{$v.start_price}<br>
+					</td>
+					<td>{$v.play_time}</td>
+					<td>{$v.closetime}</td>
+
+					<td>
+						<img src="/static/Admin/images/icon_{$v['finish']==1?'right':'error'}_s.png" style="cursor:pointer;" onclick="toggle_status(this,{$v.id},{$v.finish},'product','finish')">
+					</td>
+					<td>{$v.add_time|date="Y-m-d",###}</td>
+					<!--<td>-->
+						<!--<img src="/static/Admin/images/icon_{$v['is_sale']==1?'right':'error'}_s.png" style="cursor:pointer;" onclick="toggle_status(this,{$v.id},{$v.is_sale},'product','is_sale')">-->
+					<!--</td>-->
+					<!--<td>-->
+						<!--<img src="/static/Admin/images/icon_{$v['is_recommend']==1?'right':'error'}_s.png" style="cursor:pointer;" onclick="toggle_status(this,{$v.id},{$v.is_recommend},'product','is_recommend')">-->
+					<!--</td>-->
+					<td class="td-manage">
+						<a title="编辑" href="javascript:;" 
+						onclick="product_add('编辑产品','{:url('product_add',array('id'=>$v['id']))}')" class="ml-5" style="text-decoration:none">
+						<i class="Hui-iconfont">&#xe6df;</i></a>
+
+						<!--<a style="text-decoration:none" class="ml-5" onClick="article_edit('产品相册','{:url('gallery',array('pro_id'=>$v['id']))}')" href="javascript:;" title="产品相册"><i class="Hui-iconfont">&#xe613;</i></a>-->
+
+						<a title="删除" href="javascript:;" onclick="member_del(this,{$v['id']})" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a></td>
+				</tr>
+			{/volist}
+		</tbody>
+	</table>
+	<div class="page text-r mt-10">
+		{$page}
+	</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+/*产品-添加*/
+function member_add(title,url,w,h){
+    layer_show(title,url,w,h);
+}
+function product_add(title,url,w,h){
+	var index = layer.open({
+		type: 2,
+		title: title,
+		content: url
+	});
+	layer.full(index);
+}
+
+
+
+/*产品-删除*/
+function member_del(obj,id){
+	layer.confirm('确认要删除吗？',function(index){
+		$.post("{:url('product_del')}",{id:id},function(data){
+			if(data.status == 'y'){
+				layer.msg(data.info,{icon:1,time:1000});
+				$(obj).parents("tr").remove();
+				$("#count").text(data.count);
+			}else{
+				layer.msg(data.info,{icon:2,time:1000});
+			}
+		},'json');
+	});
+}
+
+//批量删除
+function datadel(){
+ var id='';	
+ $("input[name='del[]']:checked").each(function(){
+ 	id += $(this).val()+',';
+ });
+
+ if(id == ''){
+ 	layer.msg('还没选择!',{icon:2,time:1000});
+ 	return false;
+ }
+ layer.confirm('确认要删除吗？',function(index){
+ 	$.post("{:url('product_del')}",{id:id},function(data){
+		if(data.status == 'y'){
+			//循环当前选择的框
+			$("input[name='del[]']:checked").each(function(){
+				//删除当前选择的框
+				$(this).parents('tr').remove();
+			});
+			layer.msg(data.info,{icon:1,time:1000});
+			$("#count").text(data.count);
+		}else{
+			layer.msg(data.info,{icon:2,time:1000});
+		}
+	});
+ });
+}
+/*产品-相册*/
+function article_edit(title,url,id,w,h){
+	var index = layer.open({
+		type: 2,
+		title: title,
+		content: url
+	});
+	layer.full(index);
+}
+</script> 
+</body>
+</html>

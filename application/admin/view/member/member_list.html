@@ -1,0 +1,200 @@
+{include file="public/header" /}
+<body>
+    <style type="text/css">
+        a{margin-bottom: 2px;}
+    </style>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 会员管理 <span class="c-gray en">&gt;</span> 会员列表 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20"> 
+
+<form action="" method="get">
+    <div class="text-c">        
+        日期：
+        <input type="text" onfocus="WdatePicker({lang:'zh-tw'})" value="{:input('get.start')}" name="start" id="datemin" class="input-text Wdate" style="width:120px;"> -
+        <input type="text" onfocus="WdatePicker({lang:'zh-tw'})" value="{:input('get.end')}" name="end" id="datemin" class="input-text Wdate" style="width:120px;">
+        <input type="text" class="input-text" style="width:250px" placeholder="会员ID/账号/手机号" name="word" value="{:input('word')}">
+        <span class="select-box inline">
+            <select name="member_type" class="select">
+                <option value="">=角色=</option>
+                <option value="admin" {if condition="input('member_type') eq 'admin'"}selected{/if} >管理员</option>
+                <option value="trade" {if condition="input('member_type') eq 'trade'"}selected{/if} >交易</option>
+            </select>
+        </span>
+        <span class="select-box inline">
+            <select name="level" class="select">
+                <option value="">=等级=</option>
+                {foreach name="role" item="r" key="k"}
+                <option value="{$k}" {if condition="is_numeric(input('level')) && input('level') == $k"}selected{/if} >{$r}</option>
+                {/foreach}
+            </select>
+        </span>
+        <button type="submit" class="btn btn-success" id="" name=""><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+    </div>
+</form>
+
+    <div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> 
+        <a class="btn btn-primary radius" data-title="添加管理员" _href="article-add.html" onclick="article_add('添加管理员','{:url('member_add')}')" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 添加会员</a> 
+        <a class="btn btn-primary radius" data-title="会员结构" _href="article-add.html" onclick="member_tree('会员结构','{:url('member_tree')}')" href="javascript:;"><i class="Hui-iconfont">&#xe710;</i> 会员结构</a> 
+    </span> 
+    <span class="r">共有数据：<strong id="count">{$count}</strong> 条</span>  
+ </div>
+    <div class="mt-20">
+        <div class="page text-r mt-10">
+            {$page}
+        </div>
+        <form action="{:url('rule')}" method="post" id='sort-form'>
+            <table class="table table-border table-bordered table-bg table-hover table-sort">
+                <thead>
+                    <tr class="text-c">
+                        <th width="25"><input type="checkbox" name="" value=""></th>
+                        <th width="20">
+                            <a href="{:url('member_list',array('id_sort'=>input('id_sort') ? '' :'DESC'))}">
+                                ID/推荐号{:input('id_sort') ? '<i class="Hui-iconfont">&#xe6ba;</i>':''}
+                            </a>
+                        </th>
+                        <th width="100">账号</th>
+                        <th width="100">
+                            <a href="{:url('member_list',array('gold_sort'=>input('gold_sort') == 'DESC' ? 'ASC' :'DESC'))}">
+                                资产{:input('gold_sort') ? '<i class="Hui-iconfont">&#xe6ba;</i>':''}
+                            </a>
+                        </th>
+                        <th width="100">权限</th>
+                        <th width="120">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach name="list" item="v"}
+                        <tr class="text-c" id="tr{$v.id}">
+                            <td><input type="checkbox" value="{$v.id}" name="del[]"></td>
+                            <td>
+                                <a onClick="article_add('{$v.id}的下级','{:url('member_list',array('parent_id'=>$v['id']))}')" href="javascript:;" title="{$v.id}的下级" >
+                                    {$v.id}  <br>
+                                    <span class="label label-success radius">{$v.parent_id}</span><br>
+                                </a>
+                                <span class="label label-success radius" title="{$v.id}的联系方式">{$v.parent_mobile|default='null'}</span>
+                            </td>
+                            <td class="text-l" onclick="layer.alert('姓名:{$v.rz.name}<br>身份证：{$v.rz.card_no}<br>微信：{$v.rz.WeChat}<br>支付宝：{$v.rz.alipay}',{title:'{$v.rz.name} 的信息'})">
+                                账号：{$v.username} 
+                                <span class="label label-default radius">
+                                    {$v.id|get_member_level_name=false,$v['level']}
+                                </span> 
+                                {if condition="$v.is_admin eq 1"}
+                                    <span class="label label-secondary radius">
+                                        管理员
+                                    </span> 
+                                {/if}
+                                <br>
+                                昵称：{$v.nickname} <br>
+                                手机：{$v.mobile}
+                            </td>
+                            <td class="text-l">
+                                糖果：{$v.candy}    <br>
+                                矿石：{$v.mineral}    <br>
+                                静态TIC：{$v.storagetic}  <br>
+                                流通TIC：{$v.circulatetic}     <br>
+                                应用TIC：{$v.usetic}     <br>
+                                <!--积分：{$v.integral} <br>-->
+                                <!--资产：{$v.gold_static*$v.gold_static_price}-->
+                            </td>
+                            <td class="text-l">
+                                算力：{$v.power}  <br>
+                                释放速度：{$v.rid_speed}  <br>
+                                <!--交易限制：{$v.is_trade == 0 ? '<i class="Hui-iconfont">&#xe706;</i>' : '<i class="Hui-iconfont">&#xe6a8;</i>'}   <br>-->
+                                注册时间：{$v.reg_time|date='Y:m:d H:i:s',###} <br>
+                                <!--均价：{$v.gold_static_price} <br>-->
+                                <!--可提现额度：{$v.put_integral}-->
+                            </td>
+                            <td>   
+                                <a class="ml-5 btn btn-default" 
+                                onClick="article_add('拨币','{:url('member_gold_static',array('uid'=>$v['id']))}')" href="javascript:;" title="拨币">
+                                    <i class="Hui-iconfont">&#xe6f4;</i>
+                                </a>
+                                <a class="ml-5 btn btn-default"
+                                   onClick="article_add('增减糖果/矿石/TIC','{:url('member_money',array('uid'=>$v['id']))}')" href="javascript:;" title="拨币">
+                                    <i class="Hui-iconfont">&#xe60c;</i>
+                                </a>
+                                <!--<a class="ml-5 btn btn-default" -->
+                                <!--onClick="article_add('线下入金','{:url('member_money',array('uid'=>$v['id']))}')" href="javascript:;" title="线下入金"><i class="Hui-iconfont">&#xe63a;</i></a>-->
+
+                                <!--<a class="ml-5 btn btn-default" -->
+                                <!--onClick="article_add('安全中心','{:url('member_info',array('uid'=>$v['id']))}')" href="javascript:;" title="安全中心"><i class="Hui-iconfont">&#xe6b4;</i></a>-->
+
+                                <!--<a class="ml-5 btn btn-default" -->
+                                <!--onClick="article_add('会员编辑','{:url('member_add',array('id'=>$v['id']))}')" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i>-->
+                                <!--</a>-->
+
+                
+                            </td>
+                        </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+
+            <div class="page text-r mt-10">
+                {$page}
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+/*管理员-添加*/
+function article_add(title,url,w,h){
+    layer_show(title,url,w,h);
+}
+
+function member_tree(title,url,w,h){
+    var index = layer.open({
+        type: 2,
+        title: title,
+        content: url
+    });
+    layer.full(index);
+}
+
+/*-删除*/
+function member_del(obj,id){
+    layer.confirm('确认要删除吗？',function(index){
+        $.post("{:url('admin_del')}",{id:id},function(data){
+            if(data.status == 'y'){
+                //删除自己
+                $(obj).parents("tr").remove();
+                $("#count").text($("#count").text()-1);
+                layer.msg(data.info,{icon:1,time:1000});
+            }else{
+                layer.msg(data.info,{icon:2,time:1000});
+            }
+        },'json');
+
+    });
+}
+//批量删除
+function datadel(){
+ var id=''; 
+ $("input[name='del[]']:checked").each(function(){
+    id += $(this).val()+',';
+ });
+
+ if(id == ''){
+    layer.msg('必须选择哦!',{icon:2,time:1000});
+    return false;
+ }
+ layer.confirm('确认要删除吗？',function(index){
+    $.post("{:url('admin_del')}",{id:id},function(data){
+            if(data.status == 'y'){
+                var count = $("#count").text(),i=0;
+                $("input[name='del[]']:checked").each(function(){
+                    $(this).parents('tr').remove();
+                    i++;
+                });
+                $("#count").text(count = $("#count").text()-i);
+                layer.msg(data.info,{icon:1,time:1000});
+            }else{
+                layer.msg(data.info,{icon:2,time:1000});
+            }
+    });
+ });
+}
+</script> 
+</body>
+</html>

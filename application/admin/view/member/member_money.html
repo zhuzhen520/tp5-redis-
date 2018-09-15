@@ -1,0 +1,132 @@
+{include file="public/header" /}
+<body>
+    <div class="pd-20">
+        <form action="" method="post" class="form form-horizontal" id="form-member-add">
+            <div class="row cl">
+                <label class="form-label col-3">账号：</label>
+                <div class="formControls col-5">
+                    <input type="text" class="input-text" value="{$username}" name="username" disabled >
+                </div>
+                <div class="col-4" id="error"> </div>
+            </div>
+
+            <div class="row cl">
+                <label class="form-label col-3">昵称：</label>
+                <div class="formControls col-5">
+                    <input type="text" class="input-text" value="{$nickname}" name="nickname" disabled>
+                </div>
+                <div class="col-4"> </div>
+            </div>
+
+            <div class="row cl">
+                <label class="form-label col-3">糖果：</label>
+                <div class="formControls col-5">
+                     {$candy}
+                </div>
+                <div class="col-4"> </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-3">矿石：</label>
+                <div class="formControls col-5">
+                    {$mineral}
+                </div>
+                <div class="col-4"> </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-3">流通TIC：</label>
+                <div class="formControls col-5">
+                    {$circulatetic}
+                </div>
+                <div class="col-4"> </div>
+            </div>
+
+            <div class="row cl">
+                <label class="form-label col-3"><span class="c-red">*</span>充值：</label>
+                <span class="select-box inline">
+                <select name="addtype" class="select">
+                    <option value="0" selected>操作类型</option>
+                    <option value="1" >增加</option>
+                    <option value="2" >扣除</option>
+                </select>
+                    </span>
+                <span class="select-box inline">
+                    <select name="moneytype" class="select">
+                        <option value="0" selected>币种类型</option>
+                        <option value="1" >糖果</option>
+                        <option value="2" >矿石</option>
+                        <option value="3" >流通TIC</option>
+                    </select>
+                </span>
+                <div class="formControls col-5">
+                    <input type="text" class="input-text" placeholder="数量" value="" name="action" datatype="*" nullmsg="请输入">
+                </div>
+                <div class="col-4"> </div>
+            </div>
+
+            <div class="row cl">
+                <label class="form-label col-3">备注：</label>
+                <div class="formControls col-5">
+                    <input type="text" class="input-text" placeholder="备注" value="" name="info" >
+                </div>
+                <div class="col-4"> </div>
+            </div>
+
+            <div class="row cl">
+                <label class="form-label col-3"><span class="c-red">*</span>操作密码：</label>
+                <div class="formControls col-5">
+                    <input type="password" class="input-text" placeholder="输入操作密码" value="" name="password" datatype="*" nullmsg="请输入操作密码">
+                </div>
+                <div class="col-4"> </div>
+            </div>
+
+            <div class="row cl">
+                <div class="col-9 col-offset-3">
+                    <input type="hidden" value="{$id}" name="uid">
+                    <input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+//选择框
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	$("#form-member-add").Validform({
+		tiptype:2,
+        ajaxPost:true,
+        callback:function(data){
+          setTimeout(function(){
+            $.Hidemsg();
+            if(data.status == 'y'){
+              var index = parent.layer.getFrameIndex(window.name);
+              parent.location.reload();
+              parent.layer.close(index);
+          }
+      },1000);
+      }
+  });
+ $("input[name='username']").blur(function(){
+    var username = $.trim($(this).val());
+    if(username == ''){
+      return false;
+  }
+  $.post("{:url('repeat')}",{repeat:username},function(data){
+      if(data.status == 'n'){
+        $("#error").html("<span style='color:red;'>此账号已被使用</span>");
+    }else{
+        $("#error").html("<span style='color:#75d201;'>此账号可以使用</span>");
+    }
+});
+});
+});
+</script>
+</body>
+</html>

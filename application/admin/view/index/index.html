@@ -1,0 +1,97 @@
+{include file="public:header" /}
+<link href="/static/Admin/css/H-ui.login.css" rel="stylesheet" type="text/css" />
+<title>后台登录</title>
+<meta name="keywords" content="H-ui.admin v2.3,H-ui网站后台模版,后台模版下载,后台管理系统模版,HTML后台模版下载">
+<meta name="description" content="H-ui.admin v2.3，是一款由国人开发的轻量级扁平化网站后台模板，完全免费开源的网站后台管理系统模版，适合中小型CMS后台系统。">
+</head>
+<body onkeydown="on_return();">
+    <input type="hidden" id="TenantId" name="TenantId" value="" />
+    <div class="header"></div>
+    <div class="loginWraper">
+    <div id="loginform" class="loginBox">
+    <form class="form form-horizontal" action="{:url('login')}" method="post" id="form-msg">
+
+        <div class="row cl">
+            <label class="form-label col-3"><i class="Hui-iconfont">&#xe60d;</i></label>
+            <div class="formControls col-8">
+            <input value="{$user[0]}" name="username" type="text" placeholder="账户" class="input-text size-L">
+            </div>
+        </div>
+
+        <div class="row cl">
+            <label class="form-label col-3"><i class="Hui-iconfont">&#xe60e;</i></label>
+            <div class="formControls col-8">
+            <input value="{$user[1]}" name="password" type="password" placeholder="密码" class="input-text size-L">
+            </div>
+        </div>
+
+        <div class="row cl">
+            <div class="formControls col-8 col-offset-3">
+            <input class="input-text size-L" name="code" type="text" placeholder="验证码" onblur="if(this.value==''){this.value='验证码:'}" onclick="if(this.value=='验证码:'){this.value='';}" value="验证码:" style="width:150px;">
+            <img id="code" src="{:captcha_src()}" onclick="kanbuq(this)"> </div>
+        </div>
+
+        <div class="row">
+            <div class="formControls col-8 col-offset-3">
+              <label for="online">
+                <input type="checkbox" name="online" id="online" value="1" {$user?'checked':''}>
+            记住密码</label>
+        </div>
+        </div>
+
+        <div class="row">
+        <div class="formControls col-8 col-offset-3">
+            <input name="" onclick="login()" type="button" class="btn btn-success radius size-L" value="&nbsp;登&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;">
+            <input name="" type="reset" class="btn btn-default radius size-L" value="&nbsp;取&nbsp;&nbsp;&nbsp;&nbsp;消&nbsp;">
+        </div>
+        </div>
+    </form>
+</div>
+</div>
+
+<div class="footer">Copyright  by H-ui.admin.v2.3</div>
+<script type="text/javascript">
+    function kanbuq(obj){
+        $(obj).attr('src',$(obj).attr('src')+'?'+Math.random());
+    }
+
+    function login(){
+        layer.msg('正在登陆中...',{icon:16,time:0,shade: [0.3, '#000']});
+        var username = $("input[name='username']").val();
+        var password = $("input[name='password']").val();
+        var code = $("input[name='code']").val();
+        var online = $("input[name='online']").val();
+
+        $.ajax({
+            type:"post",
+            url: "{:url('login')}",
+            data: {username:username,password:password,code:code,online:online},
+            success: function(data){
+                if(data.status == 'y'){
+                    setTimeout(function(){
+                        layer.msg(data.msg,{icon:16,time:0,shade: [0.3, '#000']});
+                        window.location.href=data.url;
+                    },1000);
+                }else{
+                    setTimeout(function(){
+                        layer.msg(data.msg,{icon: 2,time:1500,shade: [0.3, '#000']});
+                    },1000);
+                }
+            },
+            error:function(error){
+                layer.msg('系统发生了错误',{icon:2,time:5000,shade: [0.5, '#FF0000']});
+            }
+
+        });
+
+    }
+    function on_return(){
+        if(window.event.keyCode == 13){
+            login();
+        }
+    }
+</script>
+</body>
+</html>
+
+

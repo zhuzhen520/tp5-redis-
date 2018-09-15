@@ -1,0 +1,77 @@
+{include file="public/header" /}
+<body>
+<div class="pd-20">
+  <form action="{:url('attribute_add')}" method="post" class="form form-horizontal" id="form-member-add">
+    <div class="row cl">
+      <label class="form-label col-3"><span class="c-red">*</span>属性名称：</label>
+      <div class="formControls col-5">
+        <input type="text" class="input-text" value="{$attr_name}" name="attr_name" datatype="*" nullmsg="请输入属性属性">
+      </div>
+      <div class="col-4"> </div>
+    </div>
+    <div class="row cl">
+      <label class="form-label col-3"><span class="c-red">*</span>是否显示：</label>
+      <div class="formControls col-5 skin-minimal">
+        <div class="radio-box">
+          <input type="radio" id="sex-1" name="is_show" value="1" {$is_show==1?'checked':''} >
+          <label for="sex-1">显示</label>
+        </div>
+        <div class="radio-box">
+          <input type="radio" id="sex-2" name="is_show" value="0" {$is_show==0?'checked':''} >
+          <label for="sex-2">隐藏</label>
+        </div>
+      </div>
+      <div class="col-4"> </div>
+    </div>
+    <div class="row cl">
+      <label class="form-label col-3">上级属性：</label>
+      <div class="formControls col-5"> <span class="select-box">
+        <select class="select" size="1" name="parent_id">
+          <option value="0">=作为一级属性=</option>
+          {volist name="list" id="v"}
+            <if condition="$v['level'] lt 1">
+              <option value="{$v.attr_id}" {$parent_id==$v['attr_id']?'selected':''}>{$v.attr_name}</option>
+            </if>
+          {/volist}
+        </select>
+        </span> </div>
+      <div class="col-4"> </div>
+    </div>
+    <div class="row cl">
+      <div class="col-9 col-offset-3">
+        <input type="hidden" value="{$attr_id}" name="attr_id">
+        <input type="hidden" value="{$parent_id}" name="parent">
+        <input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+      </div>
+    </div>
+  </form>
+</div>
+</div>
+
+<script type="text/javascript">
+//选择框
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	$("#form-member-add").Validform({
+		tiptype:2,
+    ajaxPost:true,
+		callback:function(data){
+      setTimeout(function(){
+        $.Hidemsg();
+        if(data.status == 'y'){
+          var index = parent.layer.getFrameIndex(window.name);
+          parent.location.reload();
+          parent.layer.close(index);
+        }
+      },1000);
+		}
+	});
+});
+</script>
+</body>
+</html>

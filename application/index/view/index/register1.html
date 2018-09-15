@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>注册——增量孵化器</title>
+  <link rel="stylesheet" href="/static/Home/static/muse-ui.css">
+  <link rel="stylesheet" href="/static/Home/static/theme-carbon.css">
+  <script src="https://cdn.bootcss.com/vue/2.5.2/vue.min.js"></script>
+  <script src="/static/Home/static/muse-ui.js"></script>
+  <script src="/static/Home/static/smsCode.js"></script>
+  <script src="/static/Home/static/jquery.min.js"></script>
+            <style>
+    .regist{
+      position: absolute;
+      width: 100%;
+      min-height: 100%;
+      background-color:#6D4A17;
+      background-image: url(/public/static/Home/static/zuce.png);
+      background-repeat: no-repeat;
+      background-size:100%;
+       z-index: -11;
+     }
+    .form {
+       padding: 16px 8px 30px;
+     }
+     .regist .form{
+       background-color: rgba(0,0,0,0);
+     }
+     .regist .mu-appbar{
+       background-color: rgba(0,0,0,0);
+     }
+     .regist .mu-text-field {
+       color: #ffffff;
+     }
+     .regist .mu-text-field.has-label {
+       min-height: 72px;
+       width: 100%;
+     }
+     .regist .mu-text-field-input{
+       color: #ffffff;
+     }
+     .regist .mu-dropDown-menu-text{
+       color: #ffffff;
+     }
+     .regist .links {
+       color: #ffffff;
+     }
+     .regist .mu-raised-button.disabled{
+       color: #333333;
+       background-color: #ffffff;
+       width: 100%;
+       height: 100%;
+     }
+     .regist .mu-raised-button-primary{
+       background-color: #ffffff;
+       color: #333333;
+       width: 100%;
+       height: 100%;
+     }
+     /*邀请码*/
+     .mu-text-field-label{
+        color: #FFF;
+     }
+     /*验证码*/
+     .mu-flat-button-label{
+         color: #FFF;
+     }
+     /*获取验证码*/
+     .mu-flat-button{
+        position: absolute;
+        right: 0;
+        bottom: 110px;
+     }
+
+     
+    </style>
+ 
+</head>
+
+<body>
+  <div class="regist" id="app">
+    <mu-appbar title="注册">
+    </mu-appbar>
+    <section class="form">
+      <div>
+        <mu-select-field v-model="area" label="区域" :max-height="300" full-width>
+          <mu-menu-item v-for="(c,index) in country" :key="index" :value="index" :title="`${c.localName}(${c.tel})`">
+          </mu-menu-item>
+        </mu-select-field>
+      </div>
+      <div>
+        <mu-text-field v-model="username" label="手机号"  type="number" :error-text="usernameError" fullWidth />
+      </div>
+      <div>
+        <mu-text-field v-model="password" label="登录密码" :error-text="passwordError" type="password" fullWidth />
+      </div>
+      <div>
+        <mu-text-field v-model="repassword" label="确认密码" :error-text="repasswordError" type="password" fullWidth />
+      </div>
+      <div>
+        <mu-text-field v-model="PayToken" label="支付密码"  type="password" :error-text="PayTokenError" fullWidth />
+      </div>
+      <div>
+        <mu-text-field v-model="psw22" label="确认密码"  type="password" :error-text="psw22Error" fullWidth />
+      </div>
+      <div>
+        <mu-text-field v-model="code"  label="邀请码" disabled :error-text="inviteError" full-width />
+      </div>
+      <div>
+        <sms-code v-model="sms_code" :phone="username" :error-text="codeError" @code="getCode"></sms-code>
+      </div>
+      <!-- <div>
+        <router-link to="/login" class="right links">如已有账号，去登陆 &gt;</router-link>
+      </div> -->
+      <div class="regist-btn">
+        <mu-raised-button label="注册" :disabled="canRegist" @click="regist" class="demo-raised-button" fullWidth primary/>
+      </div>
+    </section>
+  </div>
+  <script>
+    Vue.use(MuseUI)
+    var regist = new Vue({
+      el: '#app',
+      methods: {
+        getCode: function () {
+          let app = this;
+          jQuery.ajax({
+            url:'http://{$_SERVER['HTTP_HOST']}/index.php/api/index/sendSms',
+            dataType: 'json',
+            type: 'POST',
+            data: {
+              phone: app.username,
+            },
+            success: function(r) {
+               if (r.status == "y") {
+                 app.serverCode = r.data;
+                 localStorage.serverCode = r.data;
+               }else{
+                alert(r.info)
+               }
+            }
+          })
+        },
+        regist: function () {
+          let app = this;
+          jQuery.ajax({
+            url:'http://{$_SERVER['HTTP_HOST']}/index.php/api/index/register',
+            dataType: 'json',
+            type: 'POST',
+            data: {
+              code: app.code,
+              username: app.username,
+              password: app.password,
+              repassword: app.repassword,
+              PayToken: app.PayToken,
+              sms_code: app.sms_code,
+            },
+            success: function (r) {
+              if (r.status == "y") {
+                alert(r.info);
+                var isAndroid = window.navigator.userAgent.indexOf('Android') > -1
+                window.location.href = isAndroid ? "{:get_config('base','apk')}" : "{:get_config('base','apk')}";
+              } else {
+                alert(r.info)
+              }
+            }
+          })
+        }
+      },
+      data: function () {
+        return {
+          code: "{:input('code')}",
+          username: "",
+          password: "",
+          repassword:"",
+          PayToken: "",
+          psw22: "",
+          sms_code: "",
+          area: 6
+        }
+      },
+      created() {
+        this.code = "{:input('code')}";
+        let search = window.location.search
+        search = search.substr(1, search.length - 1);
+        let id = search.split('=')[1];
+        if (id) {
+          this.invitation_tel = id;
+        }
+        this.serverCode = localStorage.serverCode || '';
+      },
+      computed: {
+        usernamePass() {
+          let app = this;
+          return Lib.phoneRex.test(app.username);
+        },
+        usernameError() {
+        return this.usernamePass || this.username == "" 
+          ? ""
+          : "请输入正确的手机号";
+        },
+        passwordPass() {
+          let app = this;
+          return Lib.passWordRex.test(app.password);
+        },
+        passwordError() {
+          return this.passwordPass || this.password == ""
+          ? ""
+          : "密码必须为大小写字母或数字，且长度在6-20位之间";
+        },
+        repasswordPass() {
+          let app = this;
+          return app.repassword == app.password;
+        },
+        repasswordError() {
+          return this.repasswordPass || this.repassword == ""
+          ? ""
+          : "两次登录密码必须一致";
+        },
+        PayTokenPass() {
+          let app = this;
+          return Lib.smsCodeRex.test(app.PayToken);
+        },
+        PayTokenError() {
+          return this.PayTokenPass || this.PayToken == "" ? "" : "支付密码为6位数字";
+       },
+       psw22Pass() {
+          let app = this;
+          return app.psw22 == app.PayToken;
+       },
+       psw22Error() {
+          return this.psw22Pass || this.psw22 == "" ? "" : "两次交易密码必须一致";
+       },
+       invitePass() {
+          let app = this;
+          return Lib.phoneRex.test(app.code);
+       },
+       inviteError() {
+          return this.invitePass || this.code == "" 
+          ? "" 
+          : "请输入正确的邀请码";
+       },
+       codePass() {
+          let app = this;
+          return Lib.smsCodeRex.test(app.sms_code);
+       },
+       codeError() {
+          return this.codePass || this.sms_code == "" ? "" : "验证码位6位数字";
+       },
+       canRegist() {
+         return !(
+           this.usernamePass &&
+           this.passwordPass &&
+           this.repasswordPass &&
+           this.PayTokenPass &&
+           this.psw22Pass &&
+           this.codePass
+        );
+       }
+      }
+    })
+
+  </script>
+  
+</body>
+</html>

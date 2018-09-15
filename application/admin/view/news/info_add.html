@@ -1,0 +1,159 @@
+{include file="public/header" /}
+<body>
+<div class="pd-20">
+	<form action="" method="post" class="form form-horizontal" id="form-member-add">
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>资讯标题：</label>
+			<div class="formControls col-10">
+				<input type="text" class="input-text" value="{$title}" name="title" datatype="*" nullmsg="标题不能为空">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>资讯副标题：</label>
+			<div class="formControls col-10">
+				<input type="text" class="input-text" value="{$title_tmp}" name="title_tmp">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2"><span class="c-red">*</span>资讯分类：</label>
+			<div class="formControls col-2"> 
+				<span class="select-box">
+					<select name="cat_id" class="select" datatype="*" nullmsg="资讯分类不能为空">
+						<option value="">=选择资讯分类=</option>
+						{volist name="list" id="v"}
+							<option value="{$v.cat_id}" {$cat_id==$v['cat_id']?'selected':''}>
+								{:str_repeat('▶',$v['level'])}{$v.cat_name}
+							</option>
+						{/volist}
+					</select>
+				</span> 
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">关键词：</label>
+			<div class="formControls col-10">
+				<input type="text" class="input-text" value="{$keywords}" name="keywords">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-2">文章摘要：</label>
+			<div class="formControls col-10">
+				<textarea name="description" class="textarea"  placeholder="说点什么..." onKeyUp="textarealength(this,200)">{$description}</textarea>
+				<p class="textarea-numberbar"><em class="textarea-length">{:mb_strlen($description,'utf-8')}</em>/200</p>
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-2">发布时间</label>
+			<div class="formControls col-2">
+				<input type="text" onfocus="WdatePicker()" readonly value="{$publish_time}" name="publish_time" class="input-text Wdate">
+			</div>
+			<label class="form-label col-2">首页推荐：</label>
+			<div class="formControls col-2 skin-minimal">
+				<div class="check-box">
+					<input type="checkbox" id="checkbox-1" name="is_recommend" value="1"
+					{$is_recommend ==1?'checked':''}>
+					<label for="checkbox-1">&nbsp;推荐</label>
+				</div>
+			</div>
+		</div>
+		
+		{if condition="$note neq 'notice'"}
+		<div class="row cl">
+			<label class="form-label col-2">缩略图：</label>
+			<div class="formControls col-10">
+				<img id="thumb_url" src='{if condition="$thumb"}__ROOT__{$thumb}{else/}/static/Admin/nopic.jpg{/if}' style="height:100px;">
+				<input type="hidden"  id="picurl" name="thumb" value="{$thumb}" /> 
+				<input type="hidden" name="oldPic" value="{$thumb}" /> 
+				<button class="btn btn-success" id="image"  type="button" >选择图片</button>
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-2">文章内容：</label>
+			<div class="formControls col-10"> 
+				<script id="editor" type="text/plain" style="width:100%;height:400px;">{$content|htmlspecialchars_decode}</script> 
+			</div>
+		</div>
+		{/if}
+		<div class="row cl">
+			<div class="col-10 col-offset-2">
+				<input type="hidden" name="id" value="{$id}">
+				<button onClick="article_save_submit();" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 提交</button>
+				<button onClick="removeIframe();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+
+<script type="text/javascript">
+$(function(){
+	//选择框
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+//内容框name设置
+var ue = UE.getEditor('editor',{'textarea':'content'});
+
+$("#form-member-add").Validform({
+	tiptype:1,
+	ajaxPost:true,
+	callback:function(data){
+		setTimeout(function(){
+			$.Hidemsg();
+			if(data.status == 'y'){
+				var index = parent.layer.getFrameIndex(window.name);
+				parent.location.reload();
+				parent.layer.close(index);
+			}
+		},1000);
+	}
+});
+});
+</script>
+
+<link rel="stylesheet" href="/static/Admin/kindeditor-4.1.10/themes/default/default.css" />
+<script charset="utf-8" src="/static/Admin/kindeditor-4.1.10/kindeditor-min.js"></script>
+<script charset="utf-8" src="/static/Admin/kindeditor-4.1.10/lang/zh_CN.js"></script>
+<script>
+KindEditor.ready(function(K) {
+	var editor = K.editor({
+	    // allowFileManager : true,       
+	    uploadJson : "{:url('Base/uploadImg',array('path'=>'news','thumb'=>1))}", //上传功能
+	    fileManagerJson : '/static/Admin/kindeditor-4.1.10/php/file_manager_json.php?dirpath=news', //网络空间
+	  });  
+	//上传背景图片
+	K('#image').click(function() {
+	  editor.loadPlugin('image', function() {
+	    editor.plugin.imageDialog({
+	    	showRemote : false, //网络图片不开启
+	    	//showLocal : false, //不开启本地图片上传
+	     	imageUrl : K('#picurl').val(),
+	        clickFn : function(url, title, width, height, border, align) {
+	        K('#picurl').val('/uploads/'+title);
+	        $('#thumb_url').attr("src",'/uploads/'+title); //垃圾url
+	        editor.hideDialog();
+	      }
+	    });
+	  });
+	});	
+	K('#image2').click(function() {
+	  editor.loadPlugin('image', function() {
+	    editor.plugin.imageDialog({
+	    	//showRemote : false, //网络图片不开启
+	    	//showLocal : false, //不开启本地图片上传
+	     	imageUrl : K('#picurl2').val(),
+	        clickFn : function(url, title, width, height, border, align) {
+	        K('#picurl2').val(url);
+	        $('#thumb_url2').attr("src",'__ROOT__' + url);
+	        editor.hideDialog();
+	      }
+	    });
+	  });
+	});	
+});
+</script>
+</body>
+</html>

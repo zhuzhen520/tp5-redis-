@@ -1,0 +1,20 @@
+{include file="public/header" /}
+<body>
+<nav class="breadcrumb">
+    <i class="Hui-iconfont">&#xe67f;
+    </i> 首页 <span class="c-gray en">&gt;
+</span> 系统管理 <span class="c-gray en">&gt;
+</span> 数据库备份
+    <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" >
+        <i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div style="width: 40%;background:#d9d9d4;height: 12rem;margin: 10% auto;">
+    <div style="background:#d9d9d4;text-align: center;font-size: 2rem;">数据库备份</div>
+    <!--<div id="back" style="text-align: center;margin: 3% auto;background: beige;width: 25%;border-radius: 20px;">点击备份</div>-->
+    <!--<input type="text" id="sql"  readonly value="" style="width:80%;margin: 3% 10%;border-radius: 10px;">-->
+    <div id="down" style="text-align: center;margin: 3% auto;background: #89c4db;width: 25%;border-radius: 20px;">
+        <a href="{:url('Admin/Base/databackupjson')}" target="_self"> 点击备份下载</a>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,158 @@
+{include file="public/header" /}
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 交易中心 <span class="c-gray en">&gt;</span> tic <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+    <form action="" method="get">
+        <div class="text-c"> 
+            <!--<span class="select-box inline">-->
+            <!--<select name="trade_type" class="select">-->
+                <!--<option value="0">=全部交易=</option>-->
+                    <!--<option value="3" {$_GET['trade_type'] == 3 ? 'selected':''} >交易专员</option>-->
+                    <!--<option value="2" {$_GET['trade_type'] == 2 ? 'selected':''} >对点交易</option>-->
+                    <!--<option value="1" {$_GET['trade_type'] == 1 ? 'selected':''} >交易大厅</option>-->
+            <!--</select>-->
+            <!--</span>-->
+            <span class="select-box inline">
+            <select name="type" class="select">
+                <option value="0">=类型=</option>
+                    <option value="1" {$_GET['type'] == 1 ? 'selected':''} >糖果</option>
+                    <option value="2" {$_GET['type'] == 2 ? 'selected':''} >矿石</option>
+                    <!--<option value="3" {$_GET['type'] == 3 ? 'selected':''} >算力币</option>-->
+            </select>
+            </span>
+            &nbsp;日期范围：
+            <input type="text" onfocus="WdatePicker()" readonly name="time_min" value="{$_GET['time_min']}" class="input-text Wdate" style="width:120px;">
+            -
+            <input type="text" onfocus="WdatePicker()" readonly name="time_max" value="{$_GET['time_max']}" class="input-text Wdate" style="width:120px;">
+            <input type="text" class="input-text" style="width:250px" placeholder="用户ID"
+            value="{$_GET['word']}" name="word">
+            <button type="submit" class="btn btn-success radius"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+        </div>
+    </form>
+
+    <div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l">
+        <a href="javascript:;" onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 
+        批量删除</a> 
+    </span> 
+    <span class="r">共有数据：<strong id="count">{$count}</strong> 条</span> </div>
+    <div class="mt-20">
+    <table class="table table-border table-bordered table-hover table-bg table-sort">
+        <thead>
+            <tr class="text-c">
+                <th width="25"><input type="checkbox" name="" value=""></th>
+                <th width="100">ID/类型</th>
+                <th width="150">用户ID/算力等级</th>
+                <th width="100">类型/来源</th>
+                <th width="100">数量</th>
+                <th width="100">时间</th>
+                <th width="100">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {volist name="list" id="v"}
+                <tr class="text-c" id="tr{$v.id}">
+                    <td><input type="checkbox" value="{$v.id}" name="del[]"></td>
+                    <td>{$v.id}
+                    </td>
+                    <!-- 买 -->
+                    <td>
+                       <span class="label label-primary radius">
+                           {$v.uid}<br>
+                           {$v.level}
+                       </span>
+                    </td>
+                    <!-- 卖 -->
+                    <td>
+                        {switch name="$v.type"}
+                        {case value="3"} <span class="label label-primary radius">算力币</span> {/case}
+                        {case value="2"} <span class="label label-primary radius">矿石</span> {/case}
+                        {case value="1"} <span class="label label-primary radius">糖果</span> {/case}
+                        {/switch}
+                        /
+                        {switch name="$v.getway"}
+                        {case value="7"} <span class="label label-primary radius">注册</span> {/case}
+                        {case value="6"} <span class="label label-primary radius">激活</span> {/case}
+                        {case value="5"} <span class="label label-primary radius">实名</span> {/case}
+                        {case value="4"} <span class="label label-primary radius">推荐</span> {/case}
+                        {case value="3"} <span class="label label-primary radius">分享</span> {/case}
+                        {case value="2"} <span class="label label-primary radius">签到</span> {/case}
+                        {case value="1"} <span class="label label-primary radius">算力</span> {/case}
+                        {/switch}
+                    </td>
+                    <td>{$v.num}</td>
+                    <td>{$v.create_time}</td>
+                    <td class="td-manage">
+                        <!--<a title="编辑" href="javascript:;" -->
+                        <!--onclick="member_add('查看订单','{:url('product_add',array('id'=>$v['id']))}')" class="ml-5" style="text-decoration:none">-->
+                        <!--<i class="Hui-iconfont">&#xe6df;</i></a>-->
+                        <a title="删除" href="javascript:;" onclick="member_del(this,{$v['id']})" class="ml-5" style="text-decoration:none">
+                            <i class="Hui-iconfont">&#xe6e2;</i>
+                        </a>
+                </td>
+                </tr>
+            {/volist}
+        </tbody>
+    </table>
+    </div>
+    <div class="page text-r mt-10">
+        {$page}
+    </div>
+</div>
+
+<script type="text/javascript">
+
+/*产品-添加*/
+
+function member_add(title,url,w,h){
+    layer_show(title,url,w,h);
+}
+/*产品-删除*/
+function member_del(obj,id){
+    layer.confirm('确认要删除吗？',function(index){
+        $.post("{:url('ks_del')}",{id:id},function(data){
+            if(data.status == 'y'){
+                layer.msg(data.info,{icon:1,time:1000});
+                $(obj).parents("tr").remove();
+                $("#count").text(data.count);
+            }else{
+                layer.msg(data.info,{icon:2,time:1000});
+            }
+        },'json');
+    });
+}
+
+//批量删除
+function datadel(){
+ var id=''; 
+ $("input[name='del[]']:checked").each(function(){
+    id += $(this).val()+',';
+ });
+
+ if(id == ''){
+    layer.msg('还没选择!',{icon:2,time:1000});
+    return false;
+ }
+ layer.confirm('确认要删除吗？',function(index){
+    $.post("{:url('ks_del')}",{id:id},function(data){
+        if(data.status == 'y'){
+            //循环当前选择的框
+            $("input[name='del[]']:checked").each(function(){
+                //删除当前选择的框
+                $(this).parents('tr').remove();
+            });
+            layer.msg(data.info,{icon:1,time:1000});
+            $("#count").text(data.count);
+        }else{
+            layer.msg(data.info,{icon:2,time:1000});
+        }
+    });
+ });
+}
+
+function show_address(info){
+    layer.msg(info,{icon:2,time:1000});
+}
+
+</script> 
+</body>
+</html>

@@ -1,0 +1,81 @@
+ <!DOCTYPE html>
+ <html>
+ <head>
+    <meta charset="utf-8">
+    <title>会员结构</title>
+    <!-- 引入 echarts.js -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="/static/Admin/js/echarts.js"></script>
+    <span onclick="empty_data();alert('已清空')">清空缓存[一个小时自动更新一次]</span>
+</script>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 800px;height:600px;"></div>
+    <script type="text/javascript">            
+        var myChart = echarts.init(document.getElementById('main'));
+        //替换GALERY中代码
+        myChart.showLoading();
+        // $.get('/static/Admin/flare.json', function (data) {
+            var data = {$data};
+            myChart.hideLoading();
+
+            console.log(data);
+
+            echarts.util.each(data.children, function (datum, index) {
+                // index % 2 === 0 && (datum.collapsed = true); //默认打开
+                // datum.collapsed = true; 取消打开
+            });
+
+            myChart.setOption(option = {
+                tooltip: {
+                    trigger: 'item',
+                    triggerOn: 'mousemove'
+                },
+                series: [
+                {
+                    type: 'tree',
+
+                    data: [data],
+
+                    top: '1%',
+                    left: '7%',
+                    bottom: '1%',
+                    right: '20%',
+
+                    symbolSize: 15,
+
+                    label: {
+                        normal: {
+                            position: 'left',
+                            verticalAlign: 'middle',
+                            align: 'right',
+                            fontSize: 9
+                        }
+                    },
+
+                    leaves: {
+                        label: {
+                            normal: {
+                                position: 'right',
+                                verticalAlign: 'middle',
+                                align: 'left'
+                            }
+                        }
+                    },
+
+                    expandAndCollapse: true,
+                    animationDuration: 550,
+                    animationDurationUpdate: 750
+                }
+                ]
+            });
+        // });
+    </script>
+    <script type="text/javascript">
+        function empty_data(){
+            $.post("{:url('empty_data')}");
+        }
+    </script>
+</body>
+</html>

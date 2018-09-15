@@ -1,0 +1,116 @@
+{include file="public/header" /}
+<body>
+    <div class="pd-20">
+        <form action="" method="post" class="form form-horizontal" id="form-member-add">
+            <div class="row cl">
+                <label class="form-label col-3">账号：</label>
+                <div class="formControls col-5">
+                    <input type="text" class="input-text" value="{$username}" name="username" disabled >
+                </div>
+                <div class="col-4" id="error"> </div>
+            </div>
+
+            <div class="row cl">
+                <label class="form-label col-3">昵称：</label>
+                <div class="formControls col-5">
+                    <input type="text" class="input-text" value="{$nickname}" name="nickname" disabled>
+                </div>
+                <div class="col-4"> </div>
+            </div>
+
+            <div class="row cl">
+                <label class="form-label col-3">静态TIC：</label>
+                <div class="formControls col-5">
+                    &yen; {$storagetic}
+                </div>
+                <div class="col-4"> </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-3"><span class="c-red">*</span>资产：</label>
+                <div class="formControls col-5">
+                    <input type="text" id="rmb" class="input-text" value=""  datatype="*" nullmsg="请输入">
+                </div>
+                <div class="col-4"></div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-3">TIC价格：</label>
+                <div class="formControls col-5">
+                    <input type="text" id="rate" class="input-text" datatype="*"  value="" name="Today" >
+                </div>
+                <div class="col-4"> </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-3"><span class="c-red">*</span>拨币数量：</label>
+                <div class="formControls col-5">
+                    <input type="text" id="ticnum" class="input-text" readonly value="" name="action" datatype="*" nullmsg="请输入">
+                </div>
+                <div class="col-4"> </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-3"><span class="c-red">*</span>操作密码：</label>
+                <div class="formControls col-5">
+                    <input type="password" class="input-text" placeholder="输入操作密码" value="" name="password" datatype="*" nullmsg="请输入操作密码">
+                </div>
+                <div class="col-4"> </div>
+            </div>
+
+            <div class="row cl">
+                <div class="col-9 col-offset-3">
+                    <input type="hidden" value="{$id}" name="uid">
+                    <input type="hidden" value="{$id}" name="id">
+                    <input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+//选择框
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	$("#form-member-add").Validform({
+		tiptype:2,
+        ajaxPost:true,
+        callback:function(data){
+          setTimeout(function(){
+            $.Hidemsg();
+            if(data.status == 'y'){
+              var index = parent.layer.getFrameIndex(window.name);
+              parent.location.reload();
+              parent.layer.close(index);
+          }
+      },1000);
+      }
+  });
+ $("input[name='username']").blur(function(){
+    var username = $.trim($(this).val());
+    if(username == ''){
+      return false;
+  }
+  $.post("{:url('repeat')}",{repeat:username},function(data){
+      if(data.status == 'n'){
+        $("#error").html("<span style='color:red;'>此账号已被使用</span>");
+    }else{
+        $("#error").html("<span style='color:#75d201;'>此账号可以使用</span>");
+    }
+});
+});
+    $('#rate').blur(function(){
+        var rm=$('#rmb').val();
+            var bl= $('#rate').val()
+            var tic =(rm/bl).toFixed(4) ;
+            $('#ticnum').val(tic);
+            console.log(tic);
+    });
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+{include file="public/header" /}
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 交易中心 <span class="c-gray en">&gt;</span> 订单列表 <a class="btn btn-success radius r mr-20" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="pd-20">
+    <form action="" method="get">
+        <div class="text-c"> 
+            <span class="select-box inline">
+            <select name="state" class="select">
+                <option value="0">全部订单</option>
+                <option value="1" {if condition="$_GET['state'] eq 1"}selected{/if}>已取消</option>
+                <option value="2" {if condition="$_GET['state'] eq 2"}selected{/if}>已付款</option>
+                <option value="3" {if condition="$_GET['state'] eq 3"}selected{/if}>已发货</option>
+                <option value="4" {if condition="$_GET['state'] eq 4"}selected{/if}>已退货</option>
+                <option value="5" {if condition="$_GET['state'] eq 5"}selected{/if}>已完成</option>
+                <option value="6" {if condition="$_GET['state'] eq 6"}selected{/if}>未付款</option>
+                <option value="7" {if condition="$_GET['state'] eq 7"}selected{/if}>待发货</option>
+            </select>
+            </span>
+            &nbsp;下单时间：
+            <input type="text" onfocus="WdatePicker()" readonly name="time_min" value="{$_GET['time_min']}" class="input-text Wdate" style="width:120px;">
+            -
+            <input type="text" onfocus="WdatePicker()" readonly name="time_max" value="{$_GET['time_max']}" class="input-text Wdate" style="width:120px;">
+            <input type="text" class="input-text" style="width:250px" placeholder="账号ID/账号/订单号" 
+            value="{$_GET['word']}" name="word">
+            <button type="submit" class="btn btn-success radius"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+        </div>
+    </form>
+
+    <div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> </span> 
+    <span class="r">
+        当页金额: <span id="money"></span> &nbsp;&nbsp;
+        总金额: &yen; {$total|number_format='2'} &nbsp;&nbsp;
+        共有数据：<strong id="count">{$count}</strong> 条</span> </div>
+    <div class="mt-20">
+    <div class="page text-r mt-10">
+        {$page}
+    </div>    
+    <table class="table table-border table-bordered table-hover table-bg table-sort">
+        <thead>
+            <tr class="text-c">
+                <th width="25"><input type="checkbox" name="" value=""></th>
+                <th width="100">订单号</th>
+                <th width="100">账号</th>
+                <th width="350">收货地址</th>
+                <th width="150">下单时间</th>
+                <th width="150">状态</th>
+                <th width="150">金额</th>
+                <th width="100">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {volist name="list" id="v"}
+                <tr class="text-c" id="tr{$v.order_id}">
+                    <td><input type="checkbox" value="{$v.order_id}" name="del[]"></td>
+                    <td>{$v.order_sn}<br>{$v.order_pay}</td>
+                    <td>
+                        <span class="label label-success radius">{$v.user_id}</span> <br>
+                        {$v.username}
+
+                    </td>
+                    <td>
+                        {$v.province|get_region_name}省
+                        {$v.city|get_region_name}市
+                        {$v.area|get_region_name} <br>
+                        {$v.address}（{$v.name}收）
+                        {$v.mobile}
+                    </td>
+                    <td>{$v.add_time|date='Y-m-d H:i',###}</td>
+                    <td class="text-l">
+                        {switch name="v.state"}
+                            {case value="0"}已提交 {/case} 
+                            {case value="1"}
+                                <span class="label label-primary radius" title="已确认不能取消订单">已确认</span> 
+                            {/case} 
+                            {case value="2"}已取消 {/case} 
+                        {/switch}
+
+                        {if condition="$v.state != 2"}
+                            {switch name="v.pay_state"}
+                                {case value="0"}未付款 {/case}
+                                {case value="1"} <span class="label label-primary radius">已付款</span> {/case}
+                            {/switch}
+
+
+                            {switch name="v.shipping_state"}
+                                {case value="0"}未发货 {/case}
+                                {case value="1"}<span class="label label-primary radius">已发货</span> {/case}
+                                {case value="2"}<span class="label label-primary radius">已收货</span> {/case}
+                                {case value="3"}已退货 {/case}
+                            {/switch}
+                            {if condition="$v.shipping_state eq 2"}
+                                {switch name="v.comment_state"}
+                                    {case value="0"}未评论 {/case}
+                                    {case value="1"}<span class="label label-primary radius">已评论</span> {/case}
+                                {/switch}
+                            {/if}
+                        {/if}
+                    </td>
+                    <td>{$v.total}(含运费{$v.shipping_fee})</td>
+                    <td class="td-manage">
+                        <a title="编辑" href="javascript:;" 
+                        onclick="order_show('查看订单','{:url('order_show',array('id'=>$v['order_id']))}')" class="ml-5" style="text-decoration:none">
+                        <i class="Hui-iconfont">&#xe6df;</i></a>
+                        <a title="删除" href="javascript:;" onclick="member_del(this,{$v['order_id']})" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a></td>
+                </tr>
+                {php}$money += $v['total'];{/php}
+            {/volist}
+        </tbody>
+    </table>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+/* 查看订单 */
+function order_show(title,url,w,h){
+    layer_show(title,url,w,h);
+}
+/*订单-添加*/
+// function member_add(title,url,w,h){
+//  var index = layer.open({
+//      type: 2,
+//      title: title,
+//      content: url
+//  });
+//  layer.full(index);
+// }
+/*订单-删除*/
+function member_del(obj,id){
+    layer.confirm('确认要删除吗？',function(index){
+        $.post("{:url('order_del')}",{id:id},function(data){
+            if(data.status == 'y'){
+                layer.msg(data.info,{icon:1,time:1000});
+                $(obj).parents("tr").remove();
+                $("#count").text($("#count").text()-1);
+            }else{
+                layer.msg(data.info,{icon:2,time:1000});
+            }
+        },'json');
+    });
+}
+
+$("#money").text("￥{$money}");
+
+//批量删除
+function datadel(){
+ var id=''; 
+ $("input[name='del[]']:checked").each(function(){
+    id += $(this).val()+',';
+ });
+ if(id == ''){
+    layer.msg('必须选择订单哦!',{icon:2,time:1000});
+    return false;
+ }
+ layer.confirm('确认要删除吗？',function(index){
+    $.post("{:url('order_del')}",{id:id},function(data){
+        if(data.status == 'y'){
+            //循环当前选择的框
+            var i = 0;
+            $("input[name='del[]']:checked").each(function(){
+                //删除当前选择的框
+                $(this).parents('tr').remove();
+                i++;
+            });
+            layer.msg(data.info,{icon:1,time:1000});
+            $("#count").text($("#count").text()-i);
+        }else{
+            layer.msg(data.info,{icon:2,time:1000});
+        }
+    });
+ });
+}
+</script> 
+</body>
+</html>

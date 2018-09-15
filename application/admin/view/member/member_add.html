@@ -1,0 +1,166 @@
+{include file="public/header" /}
+<body>
+    <div class="pd-20">
+      <form action="" method="post" class="form form-horizontal" id="form-member-add">
+        <div class="row cl">
+          <label class="form-label col-3">钱包地址：</label>
+          <div class="formControls col-5">
+            {$wallet_address}
+        </div>
+        <div class="col-4" id="error"> </div>
+    </div>
+
+        <div class="row cl">
+          <label class="form-label col-3"><span class="c-red">*</span>账号：</label>
+          <div class="formControls col-5">
+            <input type="text" class="input-text" value="{$username}" name="username" datatype="*" nullmsg="请输入账号" {if condition="$id gt 0"}disabled{/if} >
+        </div>
+        <div class="col-4" id="error"> </div>
+    </div>
+
+    <div class="row cl">
+      <label class="form-label col-3"><span class="c-red">*</span>密码：</label>
+      <div class="formControls col-5">
+        <input type="password" class="input-text" value="" name="password" 
+        {if condition="$id gt 0"}placeholder="填写为修改"{else/}datatype="*" nullmsg="请输入密码"{/if}>
+    </div>
+    <div class="col-4"> </div>
+</div>
+
+<div class="row cl">
+  <label class="form-label col-3"><span class="c-red">*</span>昵称：</label>
+  <div class="formControls col-5">
+    <input type="text" class="input-text" value="{$nickname}" name="nickname" datatype="*" nullmsg="请输入昵称">
+</div>
+<div class="col-4"> </div>
+</div>
+
+<div class="row cl">
+  <label class="form-label col-3"><span class="c-red">*</span>电话：</label>
+  <div class="formControls col-5">
+    <input type="text" class="input-text" value="{$mobile}" name="mobile" datatype="*" nullmsg="请输入电话">
+</div>
+<div class="col-4"> </div>
+</div>
+
+<div class="row cl">
+    <label class="form-label col-3"><span class="c-red">*</span>等级：</label>
+    <div class="formControls col-1">
+    <span class="select-box inline">
+        <select name="level" class="select">
+            {foreach name="role" item="v" key="k"}
+                <option value="{$k}" {if condition="$level eq $k"}selected{/if}>{$v}</option>
+            {/foreach}
+        </select>
+    </span>
+
+    </div>
+
+    <div class="formControls col-6 skin-minimal">
+        <label class="form-label col-2">交易：</label>
+        <div class="check-box">
+            <input type="checkbox" id="checkbox-1" name="is_trade" value="1"
+            {$is_trade ==1?'checked':''}>
+            <label for="checkbox-1">&nbsp;</label>
+
+            管理员：
+
+            <div class="check-box">
+                <input type="checkbox" id="checkbox-1" name="is_admin" value="1"
+                {$is_admin ==1?'checked':''}>
+                <label for="checkbox-1">&nbsp;</label>
+            </div>
+
+            禁账号：
+            <div class="check-box">
+                <input type="checkbox" id="checkbox-1" name="is_login" value="1"
+                {$is_login ==1?'checked':''}>
+                <label for="checkbox-1">&nbsp;</label>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-4"> </div>
+</div>
+
+
+<div class="row cl">
+  <label class="form-label col-3">资产：</label>
+  <div class="formControls col-5">
+    <span class="mr-15">{$money}</span>余额</label> <span class="mr-15 ml-15">{$gold_static} </span>静态金币<br>
+    <input style="width: 200px;" type="text" class="input-text" value="{$gold}" name="gold"> 金币<br>
+    <input  style="width: 200px;" type="text" class="input-text" value="{$integral}" name="integral"> 积分<br>
+</div>
+<div class="col-4"> </div>
+</div>
+
+<div class="row cl">
+  <label class="form-label col-3"><span class="c-red">*</span>释放速度：</label>
+    <div class="formControls col-5">
+    <input type="text" class="input-text" value="{$rid_speed}" name="rid_speed">
+    </div>
+  <div class="col-4"> </div>
+</div>
+
+<div class="row cl">
+  <label class="form-label col-3"><span class="c-red">*</span>均价：</label>
+    <div class="formControls col-5">
+      {$gold_static_price}
+    </div>
+  <div class="col-4"> </div>
+</div>
+
+<div class="col-4"> </div>
+</div>
+<div class="row cl">
+  <div class="col-9 col-offset-3">
+    <input type="hidden" value="{$id}" name="id">
+    <input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+</div>
+</div>
+</form>
+</div>
+</div>
+
+<script type="text/javascript">
+//选择框
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	$("#form-member-add").Validform({
+		tiptype:2,
+        ajaxPost:true,
+        callback:function(data){
+          setTimeout(function(){
+            $.Hidemsg();
+            if(data.status == 'y'){
+              var index = parent.layer.getFrameIndex(window.name);
+              parent.location.reload();
+              parent.layer.close(index);
+          }
+      },1000);
+      }
+  });
+ $("input[name='username']").blur(function(){
+    var username = $.trim($(this).val());
+    if(username == ''){
+      return false;
+  }
+  $.post("{:url('repeat')}",{repeat:username},function(data){
+      if(data.status == 'n'){
+        $("#error").html("<span style='color:red;'>此账号已被使用</span>");
+    }else{
+        $("#error").html("<span style='color:#75d201;'>此账号可以使用</span>");
+    }
+});
+});
+});
+</script>
+</body>
+</html>

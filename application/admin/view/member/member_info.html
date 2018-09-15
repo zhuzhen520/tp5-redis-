@@ -1,0 +1,104 @@
+{include file="public/header" /}
+<body>
+    <div class="pd-20">
+      <form action="" method="post" class="form form-horizontal" id="form-member-add">
+
+    <div class="row cl">
+        <label class="form-label col-3"><span class="c-red">*</span>账号：</label>
+        <div class="formControls col-5">
+            <input type="text" class="input-text" value="[{:input('uid')}] {$member_info.username}" disabled >
+        </div>
+        <div class="col-4" id="error"> </div>
+    </div>
+
+    <div class="row cl">
+        <label class="form-label col-3"><span class="c-red">*</span>姓名：</label>
+        <div class="formControls col-5">
+        <input type="text" class="input-text" value="{$member_info.name}" name="name">
+        </div>
+        <div class="col-4"> </div>
+    </div>
+    <div class="row cl">
+        <label class="form-label col-3"><span class="c-red">*</span>身份证号码：</label>
+        <div class="formControls col-5">
+        <input type="text" class="input-text" value="{$member_info.card_no}" name="card_no">
+        </div>
+        <div class="col-4"> </div>
+    </div>
+    <div class="row cl">
+        <label class="form-label col-3"><span class="c-red">*</span>微信：</label>
+        <div class="formControls col-5">
+        <input type="text" class="input-text" value="{$member_info.WeChat}" name="WeChat">
+        </div>
+        <div class="col-4"> </div>
+    </div>
+    <div class="row cl">
+        <label class="form-label col-3"><span class="c-red">*</span>支付宝：</label>
+        <div class="formControls col-5">
+        <input type="text" class="input-text" value="{$member_info.alipay}" name="alipay">
+        </div>
+        <div class="col-4"> </div>
+    </div>
+
+    <div class="row cl">
+        <label class="form-label col-3"><span class="c-red">*</span>银行卡：</label>
+        <div class="formControls col-5">
+        {foreach name="$member_info['member_card']" item="v"}
+            <br />{$v.name} {$v.khh} {$v.khzh} {$v.card}
+        {/foreach}
+        </div>
+        <div class="col-4"> </div>
+    </div>
+
+<div class="col-4"> </div>
+</div>
+<div class="row cl">
+  <div class="col-9 col-offset-3">
+    <input type="hidden" value="{$member_info.id}" name="id">
+    <input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+</div>
+</div>
+</form>
+</div>
+</div>
+
+<script type="text/javascript">
+//选择框
+$(function(){
+    $('.skin-minimal input').iCheck({
+        checkboxClass: 'icheckbox-blue',
+        radioClass: 'iradio-blue',
+        increaseArea: '20%'
+    });
+    
+    $("#form-member-add").Validform({
+        tiptype:2,
+        ajaxPost:true,
+        callback:function(data){
+          setTimeout(function(){
+            $.Hidemsg();
+            if(data.status == 'y'){
+              var index = parent.layer.getFrameIndex(window.name);
+              parent.location.reload();
+              parent.layer.close(index);
+          }
+      },1000);
+      }
+  });
+ $("input[name='username']").blur(function(){
+    var username = $.trim($(this).val());
+    if(username == ''){
+      return false;
+  }
+  $.post("{:url('repeat')}",{repeat:username},function(data){
+      if(data.status == 'n'){
+        $("#error").html("<span style='color:red;'>此账号已被使用</span>");
+    }else{
+        $("#error").html("<span style='color:#75d201;'>此账号可以使用</span>");
+    }
+});
+});
+});
+</script>
+</body>
+</html>
